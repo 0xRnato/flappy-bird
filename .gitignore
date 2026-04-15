@@ -1,0 +1,22 @@
+# Local-only context (mirrors dogear/courier/vitrina convention)
+CLAUDE.md
+PLAN.md
+.claude/
+
+# Godot 4+ generated
+.godot/
+/android/
+
+# Godot exports
+build/
+export_presets.cfg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
