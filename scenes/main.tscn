@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/pipe_spawner.gd" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/pipe.tscn" id="4"]
 [ext_resource type="Script" path="res://scripts/hud.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/camera_shake.gd" id="6"]
+[ext_resource type="Theme" path="res://assets/fonts/pixel_theme.tres" id="7"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(200, 20)
@@ -14,7 +16,13 @@ size = Vector2(200, 20)
 
 [node name="Main" type="Node2D"]
 
-[node name="Background" type="Sprite2D" parent="."]
+[node name="Background" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 1)
+repeat_size = Vector2(144, 0)
+repeat_times = 3
+autoscroll = Vector2(-30, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="Background"]
 position = Vector2(72, 128)
 texture = ExtResource("1")
 region_enabled = true
@@ -48,104 +56,114 @@ monitorable = true
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ceiling"]
 shape = SubResource("RectangleShape2D_ceiling")
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(72, 128)
+script = ExtResource("6")
+
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("5")
 
-[node name="ScoreLabel" type="Label" parent="HUD"]
+[node name="Root" type="Control" parent="HUD"]
+offset_right = 144.0
+offset_bottom = 256.0
+theme = ExtResource("7")
+mouse_filter = 2
+
+[node name="ScoreLabel" type="Label" parent="HUD/Root"]
 offset_left = 0.0
 offset_top = 12.0
 offset_right = 144.0
 offset_bottom = 36.0
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 16
 text = "0"
 horizontal_alignment = 1
 
-[node name="BestLabel" type="Label" parent="HUD"]
+[node name="BestLabel" type="Label" parent="HUD/Root"]
 offset_left = 80.0
 offset_top = 4.0
 offset_right = 142.0
 offset_bottom = 16.0
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 6
 text = "BEST 0"
 horizontal_alignment = 2
 
-[node name="MenuPanel" type="Control" parent="HUD"]
+[node name="MenuPanel" type="Control" parent="HUD/Root"]
 offset_right = 144.0
 offset_bottom = 256.0
 mouse_filter = 2
 
-[node name="Title" type="Label" parent="HUD/MenuPanel"]
+[node name="Title" type="Label" parent="HUD/Root/MenuPanel"]
 offset_left = 0.0
 offset_top = 70.0
 offset_right = 144.0
 offset_bottom = 94.0
-theme_override_font_sizes/font_size = 16
-text = "FLAPPY BIRD"
+theme_override_font_sizes/font_size = 12
+text = "FLAPPY"
 horizontal_alignment = 1
 
-[node name="Prompt" type="Label" parent="HUD/MenuPanel"]
+[node name="Prompt" type="Label" parent="HUD/Root/MenuPanel"]
 offset_left = 0.0
-offset_top = 150.0
+offset_top = 160.0
 offset_right = 144.0
-offset_bottom = 162.0
-theme_override_font_sizes/font_size = 8
+offset_bottom = 172.0
+theme_override_font_sizes/font_size = 6
 text = "TAP TO FLAP"
 horizontal_alignment = 1
 
-[node name="GameOverPanel" type="Control" parent="HUD"]
+[node name="GameOverPanel" type="Control" parent="HUD/Root"]
 visible = false
 offset_right = 144.0
 offset_bottom = 256.0
 mouse_filter = 2
 
-[node name="Dim" type="ColorRect" parent="HUD/GameOverPanel"]
+[node name="Dim" type="ColorRect" parent="HUD/Root/GameOverPanel"]
 offset_right = 144.0
 offset_bottom = 256.0
 color = Color(0, 0, 0, 0.5)
 
-[node name="Title" type="Label" parent="HUD/GameOverPanel"]
+[node name="Title" type="Label" parent="HUD/Root/GameOverPanel"]
 offset_left = 0.0
 offset_top = 70.0
 offset_right = 144.0
 offset_bottom = 90.0
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 10
 text = "GAME OVER"
 horizontal_alignment = 1
 
-[node name="FinalScore" type="Label" parent="HUD/GameOverPanel"]
+[node name="FinalScore" type="Label" parent="HUD/Root/GameOverPanel"]
 offset_left = 0.0
 offset_top = 110.0
 offset_right = 144.0
 offset_bottom = 122.0
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 8
 text = "SCORE 0"
 horizontal_alignment = 1
 
-[node name="FinalBest" type="Label" parent="HUD/GameOverPanel"]
+[node name="FinalBest" type="Label" parent="HUD/Root/GameOverPanel"]
 offset_left = 0.0
 offset_top = 126.0
 offset_right = 144.0
 offset_bottom = 138.0
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 8
 text = "BEST 0"
 horizontal_alignment = 1
 
-[node name="NewBest" type="Label" parent="HUD/GameOverPanel"]
+[node name="NewBest" type="Label" parent="HUD/Root/GameOverPanel"]
 visible = false
 offset_left = 0.0
 offset_top = 146.0
 offset_right = 144.0
 offset_bottom = 158.0
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 8
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 text = "NEW BEST!"
 horizontal_alignment = 1
 
-[node name="Prompt" type="Label" parent="HUD/GameOverPanel"]
+[node name="Prompt" type="Label" parent="HUD/Root/GameOverPanel"]
 offset_left = 0.0
 offset_top = 190.0
 offset_right = 144.0
 offset_bottom = 202.0
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 6
 text = "TAP TO RETRY"
 horizontal_alignment = 1

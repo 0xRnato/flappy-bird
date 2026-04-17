@@ -6,6 +6,7 @@ signal died
 @export var flap_impulse: float = -180.0
 @export var max_fall_speed: float = 300.0
 @export var rotation_lerp_speed: float = 8.0
+@export var hitstop_duration: float = 0.25
 
 var _velocity_y: float = 0.0
 var _alive: bool = true
@@ -41,13 +42,16 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _flap() -> void:
 	_velocity_y = flap_impulse
+	$FlapSFX.play()
 
 
 func _die() -> void:
 	if not _alive:
 		return
 	_alive = false
+	$HitSFX.play()
 	died.emit()
+	await get_tree().create_timer(hitstop_duration).timeout
 	GameManager.game_over()
 
 

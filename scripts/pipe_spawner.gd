@@ -2,8 +2,8 @@ extends Node2D
 
 @export var pipe_scene: PackedScene
 @export var spawn_interval: float = 2.0
-@export var min_gap_y: float = 60.0
-@export var max_gap_y: float = 196.0
+@export var min_gap_y: float = 80.0
+@export var max_gap_y: float = 176.0
 @export var pipe_speed: float = 60.0
 
 var _timer: float = 0.0

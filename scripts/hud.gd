@@ -1,12 +1,12 @@
 extends CanvasLayer
 
-@onready var _score_label: Label = $ScoreLabel
-@onready var _best_label: Label = $BestLabel
-@onready var _game_over_panel: Control = $GameOverPanel
-@onready var _final_score_label: Label = $GameOverPanel/FinalScore
-@onready var _final_best_label: Label = $GameOverPanel/FinalBest
-@onready var _new_best_label: Label = $GameOverPanel/NewBest
-@onready var _menu_panel: Control = $MenuPanel
+@onready var _score_label: Label = $Root/ScoreLabel
+@onready var _best_label: Label = $Root/BestLabel
+@onready var _game_over_panel: Control = $Root/GameOverPanel
+@onready var _final_score_label: Label = $Root/GameOverPanel/FinalScore
+@onready var _final_best_label: Label = $Root/GameOverPanel/FinalBest
+@onready var _new_best_label: Label = $Root/GameOverPanel/NewBest
+@onready var _menu_panel: Control = $Root/MenuPanel
 
 
 func _ready() -> void:

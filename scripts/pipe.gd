@@ -21,4 +21,5 @@ func _on_score_area_entered(_area: Area2D) -> void:
 	if _scored:
 		return
 	_scored = true
+	$ScoreSFX.play()
 	scored.emit()
