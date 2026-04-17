@@ -29,7 +29,7 @@ func _physics_process(delta: float) -> void:
 	rotation = lerp(rotation, target_rotation, rotation_lerp_speed * delta)
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("flap"):
 		if GameManager.state == GameManager.State.MENU:
 			GameManager.start_game()
