@@ -1,0 +1,48 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/background/background_1.png" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/bird.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/pipe_spawner.gd" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/pipe.tscn" id="4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
+size = Vector2(200, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ceiling"]
+size = Vector2(200, 20)
+
+[node name="Main" type="Node2D"]
+
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(72, 128)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(56, 0, 144, 256)
+
+[node name="Bird" parent="." instance=ExtResource("2")]
+position = Vector2(40, 128)
+
+[node name="PipeSpawner" type="Node2D" parent="."]
+position = Vector2(160, 0)
+script = ExtResource("3")
+pipe_scene = ExtResource("4")
+
+[node name="Ground" type="Area2D" parent="."]
+position = Vector2(72, 266)
+collision_layer = 2
+collision_mask = 0
+monitoring = false
+monitorable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+shape = SubResource("RectangleShape2D_ground")
+
+[node name="Ceiling" type="Area2D" parent="."]
+position = Vector2(72, -10)
+collision_layer = 2
+collision_mask = 0
+monitoring = false
+monitorable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ceiling"]
+shape = SubResource("RectangleShape2D_ceiling")
