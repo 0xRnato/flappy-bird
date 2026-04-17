@@ -119,7 +119,7 @@ mouse_filter = 2
 [node name="Dim" type="ColorRect" parent="HUD/Root/GameOverPanel"]
 offset_right = 144.0
 offset_bottom = 256.0
-color = Color(0, 0, 0, 0.5)
+color = Color(0, 0, 0, 0.4)
 
 [node name="Title" type="Label" parent="HUD/Root/GameOverPanel"]
 offset_left = 0.0
