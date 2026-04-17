@@ -10,7 +10,7 @@ TASKS.md
 
 # Godot exports
 build/
-export_presets.cfg
+.godot/export_credentials.cfg
 
 # IDE
 .idea/
