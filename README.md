@@ -13,7 +13,6 @@ WebAssembly build playable directly in the browser.
 [![GDScript](https://img.shields.io/badge/GDScript-strict-478CBF)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/)
 [![Web build](https://github.com/0xRnato/flappy-bird/actions/workflows/export-web.yml/badge.svg)](https://github.com/0xRnato/flappy-bird/actions/workflows/export-web.yml)
 [![License](https://img.shields.io/github/license/0xRnato/flappy-bird)](LICENSE)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](#contributing)
 
 [**▶ Play now**](https://0xrnato.github.io/flappy-bird/) · [Architecture](#architecture) · [Quickstart](#quickstart) · [Stack](#stack) · [Features](#features)
 
@@ -44,10 +43,6 @@ Playable in any modern browser (desktop + mobile):
 **<https://0xrnato.github.io/flappy-bird/>**
 
 Auto-deployed on every push to `main` via GitHub Actions → `gh-pages`.
-
-| Menu | Playing | Game over |
-|---|---|---|
-| _screenshot pending_ | _screenshot pending_ | _screenshot pending_ |
 
 ## Architecture
 
@@ -169,6 +164,17 @@ flappy-bird/
 ├── icon.svg
 └── project.godot
 ```
+
+## Design decisions
+
+A few non-obvious trade-offs worth calling out:
+
+- **`_input` instead of `_unhandled_input` on the bird, with `input_pickable = false` on every `Area2D`.** Godot's input chain goes `_input` → GUI/`Control` handling → physics picking → `_unhandled_input`. When pipe `Area2D` nodes spawn and cover part of the viewport, physics picking intercepts mouse/touch events before they reach `_unhandled_input`. Disabling picking + reading at `_input` guarantees the bird receives every tap regardless of what is on screen. This only surfaced in the HTML5 build under touch input — a good reminder to tune against the real target.
+- **`Parallax2D` autoscroll, not scripted `ParallaxBackground`.** Godot 4.3+ ships `Parallax2D` with a built-in `autoscroll` vector, replacing the older pattern of manually incrementing `scroll_offset` each frame. Less code, no per-frame work, cleaner scene tree.
+- **`AudioStreamPlayer` on the `GameManager` autoload for the retry SFX.** Restart calls `get_tree().reload_current_scene()`, which destroys the HUD mid-playback. Putting the UI player on an autoload node keeps the sound audible across the reload. Bird and pipe SFX live on the scene nodes where they belong — only the cross-reload case needs the autoload trick.
+- **`ConfigFile` over JSON for the high-score file.** One integer, two lines of GDScript, no parser to write. `user://score.cfg` resolves to `%APPDATA%\Godot\app_userdata\Flappy Bird` on Windows; safe to delete — the game recreates it with `best = 0`.
+- **Hitstop 550 ms, not the 400 ms in the design doc.** The longer freeze lets the orange hit-burst particles render in full before the game-over overlay dims the scene. Tuned against the HTML5 build.
+- **Pipe bodies are a flat `ColorRect`.** The Kenney pipe sheet ships pipes as 32×80 sprites with a distinct cap; covering the full 300 px collision height cleanly would need a tiled-body strategy (`NinePatchRect` or a sliced atlas). That is the right engineering for a polish-focused project; this one is a rehearsal for the next, so a solid rectangle in the pipe-green palette is the pragmatic call.
 
 ## Contributing
 
