@@ -8,12 +8,14 @@ Faithful clone of the original: brutal one-pipe-at-a-time difficulty, modern jui
 (screen shake, flap animation, parallax), local high-score persistence, and a
 WebAssembly build playable directly in the browser.
 
+[![Play on GitHub Pages](https://img.shields.io/badge/play-online-brightgreen?logo=github)](https://0xrnato.github.io/flappy-bird/)
 [![Godot](https://img.shields.io/badge/Godot-4.6-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/)
 [![GDScript](https://img.shields.io/badge/GDScript-strict-478CBF)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/)
+[![Web build](https://github.com/0xRnato/flappy-bird/actions/workflows/export-web.yml/badge.svg)](https://github.com/0xRnato/flappy-bird/actions/workflows/export-web.yml)
 [![License](https://img.shields.io/github/license/0xRnato/flappy-bird)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](#contributing)
 
-[Live demo](#demo) · [Architecture](#architecture) · [Quickstart](#quickstart) · [Stack](#stack) · [Features](#features)
+[**▶ Play now**](https://0xrnato.github.io/flappy-bird/) · [Architecture](#architecture) · [Quickstart](#quickstart) · [Stack](#stack) · [Features](#features)
 
 </div>
 
@@ -38,7 +40,10 @@ What this clone adds on top of the original:
 
 ## Demo
 
-A live WebAssembly build will be deployed to GitHub Pages at the end of M4.
+Playable in any modern browser (desktop + mobile):
+**<https://0xrnato.github.io/flappy-bird/>**
+
+Auto-deployed on every push to `main` via GitHub Actions → `gh-pages`.
 
 | Menu | Playing | Game over |
 |---|---|---|
