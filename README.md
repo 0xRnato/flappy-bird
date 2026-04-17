@@ -1,143 +1,186 @@
+<div align="center">
+
 # Flappy Bird
 
-[![Status](https://img.shields.io/badge/status-phase%200%20of%206-yellow)](#roadmap)
-[![Godot](https://img.shields.io/badge/Godot-4.x-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/)
+**A one-button side-scroller in Godot 4 — flap through an endless pipe field, one tap at a time.**
+
+Faithful clone of the original: brutal one-pipe-at-a-time difficulty, modern juice
+(screen shake, flap animation, parallax), local high-score persistence, and a
+WebAssembly build playable directly in the browser.
+
+[![Godot](https://img.shields.io/badge/Godot-4.6-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org/)
+[![GDScript](https://img.shields.io/badge/GDScript-strict-478CBF)](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/)
 [![License](https://img.shields.io/github/license/0xRnato/flappy-bird)](LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](#contributing)
 
-**A one-button side-scroller built in Godot 4 — flap through an endless pipe field, one tap at a time.**
+[Live demo](#demo) · [Architecture](#architecture) · [Quickstart](#quickstart) · [Stack](#stack) · [Features](#features)
 
-A faithful Flappy Bird clone written in GDScript. Keeps the brutal one-pipe-at-a-time
-difficulty of the original, adds a bit of modern juice (screen shake, flap
-animation, parallax background), persists a local high score, and ships as an
-HTML5 build playable in the browser.
+</div>
 
-## Status
+---
 
-**Phase 0 of 6 — foundation.** The repository scaffold is in place:
+## Why
 
-- ✅ Godot 4 project structure, version-controlled `.gitignore` and `.gitattributes`
-- ✅ Kenney CC0 sprites, fonts and SFX imported
-- ✅ Design doc ([`DESIGN.md`](DESIGN.md)) with pillars, mechanics and tuning values
-- ✅ MIT license, Conventional-Commits policy
+Flappy Bird is the smallest surface area a real 2D game needs to cover: one
+input, one obstacle, no AI, no levels, no save slots beyond a single integer.
+Every subsystem a Godot project eventually touches — physics, collision shapes,
+scene composition, signals, autoloads, persistence, audio, UI state machine,
+web export — has to be exercised, but none of them can sprawl. The scope is
+locked by the genre itself.
 
-Coming next: the core loop — bird physics, pipe spawner, collision detection,
-game-over and restart. See the [roadmap](#roadmap).
+What this clone adds on top of the original:
 
-## Why Flappy Bird
+- **Deterministic physics** via `CharacterBody2D` (no rigid-body floatiness).
+- **Modern juice** — flap animation, screen shake, hitstop, parallax scroll.
+- **Zero-cost hosting** — HTML5 + GitHub Pages, no backend, no accounts.
+- **Local-only persistence** — `ConfigFile` at `user://score.cfg`, one integer.
+- **Web-first tuning** — feel is tuned against the HTML5 build, not the editor.
 
-Flappy Bird is the smallest complete video game possible: one input, one
-obstacle type, no AI, no level design, no save slots beyond a single integer.
-That makes it the perfect first Godot project — every subsystem a real game
-needs (physics, collision shapes, scene composition, signals, autoloads,
-persistence, audio, UI states, web export) has to be touched, but none of
-them can sprawl. The scope is locked by the genre itself, which means the
-project either ships polished or it doesn't ship.
+## Demo
 
-That constraint is the whole point. This repo is a deliberate exercise: pick
-a known-good design, execute it cleanly end to end, and ship a playable build
-a recruiter can click through in ten seconds.
+A live WebAssembly build will be deployed to GitHub Pages at the end of M4.
 
-## Tech stack
+| Menu | Playing | Game over |
+|---|---|---|
+| _screenshot pending_ | _screenshot pending_ | _screenshot pending_ |
 
-| Layer           | Tool                                           |
-|-----------------|------------------------------------------------|
-| Engine          | Godot 4.x                                      |
-| Language        | GDScript                                       |
-| Art             | [Kenney](https://kenney.nl/assets) CC0 sprites |
-| Fonts           | Press Start 2P (OFL) / Kenney Pixel (CC0)      |
-| Audio           | Kenney UI + Impact SFX (CC0)                   |
-| Persistence     | `ConfigFile` in `user://score.cfg`             |
-| Export target   | HTML5 (WebAssembly) on GitHub Pages            |
-| CI              | GitHub Actions — auto-export and deploy        |
+## Architecture
+
+Single scene (`main.tscn`) hosts every state. Transitions are gated by a
+`GameManager` autoload FSM; UI nodes listen to `state_changed` and toggle their
+own visibility — no scene swaps.
+
+```mermaid
+flowchart LR
+    Menu -->|tap / space| Playing
+    Playing -->|flap| Playing
+    Playing -->|pass pipe +1| Playing
+    Playing -->|collision / floor / ceiling| GameOver
+    GameOver -->|tap / space| Menu
+```
+
+Cross-node communication is signals-only:
+
+- `Bird.died` — bird hit a pipe, floor, or ceiling
+- `ScoreTrigger.scored` — bird passed a pipe gap
+- `GameManager.state_changed` — FSM transition
+- `GameManager.score_changed` — score incremented
+
+Two autoloads: `GameManager` (state, score, restart) and `ScoreStore`
+(`ConfigFile` wrapper with `record(score) -> bool`).
+
+## Stack
+
+| Layer       | Tech                                                  |
+|-------------|-------------------------------------------------------|
+| Engine      | Godot 4.6 (standard build, not .NET)                  |
+| Language    | GDScript                                              |
+| Sprites     | MegaCrash flappy bird pixel art (CC0)                 |
+| Font        | Press Start 2P (OFL)                                  |
+| Audio       | Kenney UI Audio + Impact Sounds (CC0)                 |
+| Persistence | `ConfigFile` at `user://score.cfg`                    |
+| Export      | HTML5 / WebAssembly                                   |
+| Hosting     | GitHub Pages                                          |
+| CI          | GitHub Actions (firebelley/godot-export + peaceiris)  |
+
+## Features
+
+**Gameplay**
+- One-input verb set: tap / click / space to flap
+- Deterministic gravity + flap impulse, velocity-driven bird tilt
+- Random pipe-gap Y per spawn, constant scroll speed (no ramp — original parity)
+- Collision-based game over (pipe, floor, or ceiling)
+
+**Polish**
+- 7-frame flap animation on `AnimatedSprite2D`
+- Camera shake on hit (decaying tween)
+- Hitstop (~250 ms) before the game-over overlay
+- Parallax background via `Parallax2D` autoscroll
+- SFX: flap, score chime, hit thud
+
+**Persistence**
+- Local high score round-trips across sessions via `ConfigFile`
+- `NEW BEST!` highlight on the game-over screen when a record is set
+
+**Web**
+- WebAssembly build auto-exported on push (M4)
+- Touch-input aware — `flap` action binds keyboard, mouse, and screen touch
+
+## Quickstart
+
+Requires [Godot 4.6](https://godotengine.org/download) (standard, not .NET) + Git.
+
+```bash
+git clone git@github.com:0xRnato/flappy-bird.git
+cd flappy-bird
+godot --path . --editor       # or open project.godot from the editor
+```
+
+Press `F5` in the editor to run. Controls: `Space` / click / touch to flap.
+
+### Manual HTML5 export
+
+```bash
+godot --path . --headless --export-release "Web" build/web/index.html
+python -m http.server 8000 -d build/web
+# open http://localhost:8000
+```
+
+## Roadmap
+
+| Phase | Focus                                                                   |
+|-------|-------------------------------------------------------------------------|
+| M0    | Foundation — project scaffold, assets, docs, license                    |
+| M1    | Core loop — bird physics, pipe spawner, collision-based game over       |
+| M2    | Score + persistence — counter, HUD, high score via `ConfigFile`         |
+| M3    | Polish — SFX, flap animation, screen shake, parallax, pixel font        |
+| M4    | Web export — HTML5 build, GitHub Actions, Pages deploy                  |
+| M5    | Documentation — gameplay GIF, screenshots, design writeup               |
 
 ## Project structure
 
 ```
 flappy-bird/
-├── .github/workflows/   # HTML5 export + Pages deploy (Phase 4)
+├── .github/workflows/       # HTML5 export + Pages deploy (M4)
 ├── assets/
-│   ├── sprites/         # Kenney pack
-│   ├── sfx/
-│   └── fonts/
+│   ├── sprites/             # bird frames, background, pipe tiles
+│   ├── sfx/                 # flap, score, hit, ui
+│   └── fonts/               # Press Start 2P + pixel_theme.tres
 ├── scenes/
-│   ├── main.tscn
-│   ├── bird.tscn
-│   ├── pipe.tscn
-│   ├── pipe_spawner.tscn
-│   └── ui/              # main menu, HUD, game over
+│   ├── main.tscn            # single scene hosting every UI state
+│   ├── bird.tscn            # Area2D + AnimatedSprite2D + SFX
+│   └── pipe.tscn            # top/bottom pipes + ScoreTrigger + SFX
 ├── scripts/
-│   ├── bird.gd
-│   ├── pipe.gd
-│   ├── pipe_spawner.gd
-│   ├── game_manager.gd
-│   └── score_store.gd
-├── DESIGN.md            # game design document
+│   ├── bird.gd              # gravity, flap, rotation, death
+│   ├── pipe.gd              # scroll, self-destruct, score emit
+│   ├── pipe_spawner.gd      # timer-driven spawn with random gap Y
+│   ├── game_manager.gd      # autoload FSM + score + restart
+│   ├── score_store.gd       # autoload ConfigFile wrapper
+│   ├── hud.gd               # HUD + menu/game-over overlays
+│   └── camera_shake.gd      # decaying shake on hit
+├── DESIGN.md                # game design document (pillars, tuning, scene graph)
 ├── LICENSE
 ├── README.md
 ├── icon.svg
 └── project.godot
 ```
 
-## Development
+## Contributing
 
-### Requirements
-
-- [Godot 4.x](https://godotengine.org/download) (standard build, not .NET)
-- Git
-
-### Setup
-
-```bash
-git clone git@github.com:0xRnato/flappy-bird.git
-cd flappy-bird
-```
-
-Open `project.godot` in the Godot editor. The first import takes a few
-seconds while Godot generates `.godot/` metadata (gitignored).
-
-### Run
-
-- Press `F5` in the editor to run the main scene.
-- Controls: `Space` / `Click` / `Touch` to flap. `Enter` to start / restart.
-  `Esc` to pause.
-
-### Export (HTML5)
-
-Once Phase 4 lands, a GitHub Actions workflow builds an HTML5 export on every
-push to `main` and publishes it to GitHub Pages. For manual exports:
-
-- `Project → Export…` in the editor, pick the HTML5 preset, export to `build/web/`.
-- Serve locally with `python -m http.server 8000 -d build/web` and open
-  `http://localhost:8000`.
-
-## Roadmap
-
-| Phase | Focus                                                                       |
-|-------|-----------------------------------------------------------------------------|
-| 0     | Foundation: project scaffold, assets, design doc, license (current)         |
-| 1     | Core loop: bird physics, pipe spawner, collision-based game over, restart   |
-| 2     | Score and persistence: pass-through score counter, high score via `ConfigFile` |
-| 3     | Polish: SFX, flap animation, particles, screen shake, parallax BG, menus    |
-| 4     | Web export: HTML5 build, GitHub Actions, Pages deploy                       |
-| 5     | Portfolio pass: gameplay GIF, screenshots, design-decisions writeup         |
-
-## Design decisions
-
-- **GDScript over C#.** Zero build step, one-file scripts, tight editor
-  integration. A one-button game does not exercise anything C# would win at.
-- **Kenney CC0 art, not custom pixel art.** Time spent in Aseprite is time
-  not spent shipping. The pack is tasteful, consistent, and license-clean.
-- **Endless runner, no levels.** Matches the original. Eliminates a whole
-  class of scope creep (level editor, progression, save slots).
-- **`user://` high score, not cloud.** No backend means no auth, no
-  accounts, no hosting cost. `ConfigFile` is two lines of GDScript and
-  round-trips perfectly across sessions.
-- **HTML5 export, not desktop binaries.** A playable demo one click away
-  beats a `.exe` nobody downloads. GitHub Pages is free and fast enough
-  for a 5 MB WASM build.
-- **Physics via `CharacterBody2D`, not `RigidBody2D`.** Deterministic,
-  trivial to tune, and avoids the floatiness that rigid-body gravity
-  introduces at low mass.
+- **Language.** English in all code, commits, comments, file names, and public
+  docs. Keep user-facing UI strings in a single place so translations can
+  happen later.
+- **Commits.** [Conventional Commits](https://www.conventionalcommits.org/)
+  (`feat(score):`, `fix(bird):`, `docs:`, `chore:`). Subject-only — the diff
+  speaks.
+- **Code style.** GDScript built-in conventions (`snake_case.gd`,
+  `PascalCase` class names, `SCREAMING_SNAKE_CASE` constants, `_` prefix for
+  private members). Exported tunables use `@export` so values stay in the
+  editor, not hard-coded.
+- **Signals over polling.** Cross-node state goes through signals; `_process`
+  never reads globals.
+- **Branching.** Push directly to `main` — no feature branches, no PRs — until
+  the project has external contributors.
 
 ## License
 

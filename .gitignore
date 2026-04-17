@@ -1,6 +1,7 @@
 # Local-only context (mirrors dogear/courier/vitrina convention)
 CLAUDE.md
 PLAN.md
+TASKS.md
 .claude/
 
 # Godot 4+ generated
